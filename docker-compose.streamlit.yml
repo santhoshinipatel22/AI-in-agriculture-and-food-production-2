@@ -1,0 +1,98 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:6.0
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MQTT Broker
+  mosquitto:
+    image: eclipse-mosquitto:2
+    ports:
+      - "1883:1883"
+    volumes:
+      - mosquitto_data:/mosquitto/data
+    healthcheck:
+      test: ["CMD", "mosquitto_sub", "-h", "localhost", "-t", "test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: production
+      MONGODB_URI: mongodb://admin:password123@mongodb:27017/smartfarming?authSource=admin
+      REDIS_URL: redis://redis:6379
+      MQTT_URL: mqtt://mosquitto:1883
+      JWT_SECRET: your-secret-key-change-this
+      PORT: 5000
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      mosquitto:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./backend:/app
+
+  # Streamlit Frontend
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit
+    ports:
+      - "8501:8501"
+    environment:
+      API_URL: http://backend:5000/api
+      STREAMLIT_SERVER_PORT: 8501
+      STREAMLIT_SERVER_ADDRESS: 0.0.0.0
+      STREAMLIT_SERVER_HEADLESS: true
+    depends_on:
+      backend:
+        condition: service_healthy
+    volumes:
+      - ./streamlit_app.py:/app/streamlit_app.py
+      - ./config.toml:/app/.streamlit/config.toml
+
+volumes:
+  mongodb_data:
+  mosquitto_data:
+
+networks:
+  default:
+    name: smartfarming-network

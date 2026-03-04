@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: smart-farming-mongodb
+    environment:
+      MONGO_INITDB_DATABASE: smart-farming
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: smart-farming-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: smart-farming-mqtt
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - mosquitto_data:/mosquitto/data
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: smart-farming-backend
+    environment:
+      NODE_ENV: production
+      MONGODB_URI: mongodb://mongodb:27017/smart-farming
+      REDIS_URL: redis://redis:6379
+      MQTT_BROKER_URL: mqtt://mosquitto:1883
+      PORT: 5000
+    ports:
+      - "5000:5000"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/uploads:/app/uploads
+    command: npm run dev
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: smart-farming-frontend
+    environment:
+      REACT_APP_API_URL: http://localhost:5000
+      REACT_APP_SOCKET_URL: http://localhost:5000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend/src:/app/src
+
+volumes:
+  mongodb_data:
+  redis_data:
+  mosquitto_data:
+
+networks:
+  default:
+    name: smart-farming-network

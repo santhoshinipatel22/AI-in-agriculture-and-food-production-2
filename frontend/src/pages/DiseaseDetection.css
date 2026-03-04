@@ -1,0 +1,173 @@
+/* Disease Detection */
+.disease-detection {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.disease-detection h1 {
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.disease-detection > p {
+  color: #666;
+  margin-bottom: 30px;
+}
+
+.detection-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+.upload-section {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.upload-box {
+  border: 2px dashed #667eea;
+  border-radius: 8px;
+  padding: 40px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 20px 0;
+  background: #f9f9f9;
+}
+
+.upload-box:hover {
+  border-color: #5568d3;
+  background: #f5f5ff;
+}
+
+.upload-box img {
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: 4px;
+}
+
+.upload-box p {
+  margin: 8px 0;
+  color: #666;
+}
+
+.detect-btn {
+  width: 100%;
+  background-color: #667eea;
+  color: white;
+  padding: 12px;
+  border-radius: 4px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.detect-btn:hover:not(:disabled) {
+  background-color: #5568d3;
+  transform: translateY(-2px);
+}
+
+.detect-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Results */
+.results-section {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.results-section h2 {
+  margin: 0 0 20px 0;
+  color: #333;
+}
+
+.result-card {
+  border-radius: 8px;
+}
+
+.severity {
+  border-left: 4px solid #ff9800;
+  padding: 20px;
+  background: #fff3e0;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.severity h3 {
+  margin: 0 0 12px 0;
+  color: #333;
+}
+
+.severity p {
+  margin: 8px 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.treatment-section {
+  margin-top: 20px;
+}
+
+.treatment-type {
+  margin-bottom: 16px;
+  padding: 16px;
+  background: #f9f9f9;
+  border-radius: 4px;
+}
+
+.treatment-type h5 {
+  margin: 0 0 10px 0;
+  color: #333;
+  text-transform: uppercase;
+  font-size: 13px;
+}
+
+.treatment-type ul,
+.prevention ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.treatment-type li,
+.prevention li {
+  color: #666;
+  margin: 6px 0;
+  font-size: 14px;
+}
+
+.products-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.product-item {
+  padding: 12px;
+  background: #f9f9f9;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.product-item p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.product-item strong {
+  color: #333;
+}
+
+@media (max-width: 768px) {
+  .detection-container {
+    grid-template-columns: 1fr;
+  }
+}
